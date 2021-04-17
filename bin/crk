@@ -1,0 +1,81 @@
+#! /usr/bin/env node
+
+// console.log('crk sh hahahah sfsdfsd'); // npm link 会自动产生执行命令
+
+/**
+ * 对比执行指令的时候是否传入的属性存在于配置中的指令
+ * 执行指令： create app --force
+ * 配置的指令： program..option('-f, --force', 'overwrite target directory if it exists')
+ * 得到的结果： {force: true}
+ * @param cmd 在配置指令的时候传入的option配置
+ */
+// const cleanArgs = (cmd) => {
+//   const args = {};
+//   cmd.options.forEach((o) => {
+//     const key = o.long.slice(2);
+//     if (cmd[key]) args[key] = cmd[key];
+//   });
+// };
+
+// 1) 配置可执行命令 commander：常用的命令行工具
+const program = require('commander');
+
+// 可以给指令带上颜色
+const chalk = require('chalk');
+
+// 核心功能： 1、创建项目  2、更改配置文件  3、ui界面 @vue/ui 可配置的ui界面
+
+// 万一重名了？ 提供强制创建的模式
+
+program
+  .command('create <app-name>')
+  .description('create a new project')
+  .option('-f, --force', 'overwrite target directory if it exists')
+  .action((name, cmd) => {
+    // 调用create模块去创建
+
+    // require('../lib/create')(name, cleanArgs(cmd));
+    require('../lib/create')(name, cmd);
+
+    // console.log(name, cmd);
+  });
+
+// vue config --get
+program
+  .command('config [value]')
+  .description('inspect and modify the config')
+  .option('-g, --get <path>', 'get value from option')
+  .option('-s, --set <path> <value>')
+  .option('-d, --delete <path>', 'delete option from config')
+  .action((val, cmd) => {
+    console.log(val, cmd);
+  });
+
+// ui
+program
+  .command('ui')
+  .description('start and open crk ui')
+  .option('-p, --port <port>', 'port used for the ui server')
+  .action((cmd) => {
+    console.log(cmd);
+  });
+
+program
+  .version(`crk@${require('../package.json').version}`)
+  .usage(`<command> [option]`);
+
+// 解析用户执行命令传入的参数
+
+program.on('--help', function () {
+  console.log();
+  console.log(`run ${chalk.cyan(`crk <command> --help`)} show details`);
+  console.log();
+});
+
+program.parse(process.argv);
+
+// 2) 实现脚手架，先做一个命令交互的功能  inquirer 可供用户选择，自定义创建项目选项
+
+// 3) 将模板下载下来 download-git-repo
+
+// 4) 根据用户的选择动态的生成内容  metalsmith
